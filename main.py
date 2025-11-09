@@ -4,7 +4,7 @@ import datetime
 import matplotlib.pyplot as plt
 
 
-def convert_to_time(sek: float) -> str:
+def convert_to_time(sek: float):
     delta = datetime.timedelta(seconds=sek)
     days = delta.days
     hours, remainder = divmod(delta.seconds, 3600)
@@ -12,8 +12,26 @@ def convert_to_time(sek: float) -> str:
     return f"{days} days, {hours} hours, {minutes} min, {seconds} s"
 
 
+def cramer_rule(mat, y):
+    det = np.linalg.det(mat)
+
+    # A_i
+    mat1 = np.array([b, mat(1), mat(2)])
+    mat2 = np.array([mat(0), b, mat(2)])
+    mat3 = np.array([mat(0), mat(1), b])
+
+    # det av A_i
+    det1 = np.linalg.det(mat1)
+    det2 = np.linalg.det(mat2)
+    det3 = np.linalg.det(mat3)
+
+    x = ((det1/det), (det2/det), (det3/det))
+
+    return x
+
+
 # Storlekar på systemen
-system_sizes = range(5, 1001, 5)
+system_sizes = range(5, 501, 1)
 
 # vart tiden sparas
 gauss_times = []
