@@ -16,18 +16,18 @@ def cramer_rule(mat, y):
     det = np.linalg.det(mat)
 
     # A_i
-    mat1 = np.array([b, mat(1), mat(2)])
-    mat2 = np.array([mat(0), b, mat(2)])
-    mat3 = np.array([mat(0), mat(1), b])
+    mat1 = np.array([y, mat[1], mat[2]])
+    mat2 = np.array([mat[0], y, mat[2]])
+    mat3 = np.array([mat[0], mat[1], y])
 
     # det av A_i
     det1 = np.linalg.det(mat1)
     det2 = np.linalg.det(mat2)
     det3 = np.linalg.det(mat3)
 
-    x = ((det1/det), (det2/det), (det3/det))
+    x3 = ((det1/det), (det2/det), (det3/det))
 
-    return x
+    return x3
 
 
 # Storlekar på systemen
@@ -36,6 +36,7 @@ system_sizes = range(5, 501, 1)
 # vart tiden sparas
 gauss_times = []
 inverse_times = []
+cramer_time =[]
 
 # start time counter
 start_total_time = time.time()
@@ -57,6 +58,13 @@ for n in system_sizes:
     x2 = A_inv.dot(b)
     end = time.time()
     inverse_times.append(end - start)
+
+    # Cramer's rule
+    start = time.time()
+    cramer_rule(A, b)
+    end = time.time()
+    cramer_time.append(end - start)
+
 
 # end time counter
 end_total_time = time.time()
