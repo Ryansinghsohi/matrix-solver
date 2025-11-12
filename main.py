@@ -13,21 +13,17 @@ def convert_to_time(sek: float):
 
 
 def cramer_rule(mat, y):
-    det = np.linalg.det(mat)
+    det_A = np.linalg.det(mat)
+    n_amount = mat.shape[0]
+    x = np.zeros(n_amount)
 
-    # A_i
-    mat1 = np.array([y, mat[1], mat[2]])
-    mat2 = np.array([mat[0], y, mat[2]])
-    mat3 = np.array([mat[0], mat[1], y])
+    for i in range(n_amount):
+        A_i = mat.copy()
+        A_i[:, i] = y
+        det_Ai = np.linalg.det(A_i)
+        x[i] = det_Ai / det_A
 
-    # det av A_i
-    det1 = np.linalg.det(mat1)
-    det2 = np.linalg.det(mat2)
-    det3 = np.linalg.det(mat3)
-
-    x3 = ((det1/det), (det2/det), (det3/det))
-
-    return x3
+    return x
 
 
 # Storlekar på systemen
@@ -36,7 +32,7 @@ system_sizes = range(5, 501, 1)
 # vart tiden sparas
 gauss_times = []
 inverse_times = []
-cramer_time =[]
+cramer_times = []
 
 # start time counter
 start_total_time = time.time()
@@ -59,29 +55,31 @@ for n in system_sizes:
     end = time.time()
     inverse_times.append(end - start)
 
-    # Cramer's rule
+    # Cramer's rule (OBS: mycket långsam för stora n)
     start = time.time()
-    cramer_rule(A, b)
+    if n <= 100:  # Cramer's rule blir extremt långsam annars
+        cramer_rule(A, b)
+    else:
+        cramer_times.append(np.nan)
+        continue
     end = time.time()
-    cramer_time.append(end - start)
-
+    cramer_times.append(end - start)
 
 # end time counter
 end_total_time = time.time()
 
-# find diffrence from start to end
+# find difference from start to end
 dif_total_time = int(end_total_time - start_total_time)
 
 # convert time
 print(convert_to_time(dif_total_time))
 
-
 # skapa grafen
 plt.figure(figsize=(8, 6))
 plt.plot(system_sizes, gauss_times, marker="o", label="Gauss-elimination (solve)")
 plt.plot(system_sizes, inverse_times, marker="s", label="Inversmetoden (A^-1 * b)")
+plt.plot(system_sizes[:len(cramer_times)], cramer_times, marker="^", label="Cramer's rule", linestyle="--")
 
-# olika labes
 plt.xlabel("Antal ekvationer / obekanta (n)")
 plt.ylabel("Tid (sekunder)")
 plt.title("Jämförelse av metoder för att lösa Ax = b")
