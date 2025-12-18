@@ -27,7 +27,7 @@ def cramer_rule(mat, y):
 
 
 # Storlekar på systemen
-system_sizes = range(5, 501, 1)
+system_sizes = range(5, 101, 1)
 
 # vart tiden sparas
 gauss_times = []
@@ -57,7 +57,7 @@ for n in system_sizes:
 
     # Cramer's rule (OBS: mycket långsam för stora n)
     start = time.time()
-    if n <= 100:  # Cramer's rule blir extremt långsam annars
+    if n <= 10:  # Cramer's rule blir extremt långsam annars
         cramer_rule(A, b)
     else:
         cramer_times.append(np.nan)
