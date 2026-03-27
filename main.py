@@ -1,88 +1,150 @@
 import numpy as np
-import time
-import datetime
 import matplotlib.pyplot as plt
+from matplotlib.widgets import Button
 
 
-def convert_to_time(sek: float):
-    delta = datetime.timedelta(seconds=sek)
-    days = delta.days
-    hours, remainder = divmod(delta.seconds, 3600)
-    minutes, seconds = divmod(remainder, 60)
-    return f"{days} days, {hours} hours, {minutes} min, {seconds} s"
+# Operation counter
+class OpCounter:
+    def __init__(self):
+        self.ops = 0
+
+    def add(self, n=1):
+        self.ops += n
 
 
-def cramer_rule(mat, y):
-    det_A = np.linalg.det(mat)
-    n_amount = mat.shape[0]
-    x = np.zeros(n_amount)
+# Gaussian elimination
+def gauss_elimination_ops(A, b):
+    n = len(b)
+    counter = OpCounter()
+    A = A.astype(float)
+    b = b.astype(float)
+    for k in range(n):
+        for i in range(k + 1, n):
+            factor = A[i, k] / A[k, k]
+            counter.add(1)
+            for j in range(k, n):
+                A[i, j] -= factor * A[k, j]
+                counter.add(2)
+            b[i] -= factor * b[k]
+            counter.add(2)
+    x = np.zeros(n)
+    for i in range(n-1, -1, -1):
+        s = 0
+        for j in range(i+1, n):
+            s += A[i, j] * x[j]
+            counter.add(2)
+        x[i] = (b[i] - s) / A[i, i]
+        counter.add(2)
+    return x, counter.ops
 
-    for i in range(n_amount):
-        A_i = mat.copy()
-        A_i[:, i] = y
-        det_Ai = np.linalg.det(A_i)
-        x[i] = det_Ai / det_A
 
-    return x
+# Matrix inverse (Gauss–Jordan)
+def inverse_ops(A):
+    n = A.shape[0]
+    counter = OpCounter()
+    A = A.astype(float)
+    I = np.eye(n)
+    for i in range(n):
+        pivot = A[i, i]
+        for j in range(n):
+            A[i, j] /= pivot
+            I[i, j] /= pivot
+            counter.add(2)
+        for k in range(n):
+            if k != i:
+                factor = A[k, i]
+                counter.add(1)
+                for j in range(n):
+                    A[k, j] -= factor * A[i, j]
+                    I[k, j] -= factor * I[i, j]
+                    counter.add(4)
+    return I, counter.ops
 
 
-# Storlekar på systemen
-system_sizes = range(5, 101, 1)
+# Determinant
+def det_ops(A):
+    n = A.shape[0]
+    counter = OpCounter()
+    A = A.copy().astype(float)
+    for k in range(n):
+        for i in range(k+1, n):
+            factor = A[i, k] / A[k, k]
+            counter.add(1)
+            for j in range(k, n):
+                A[i, j] -= factor * A[k, j]
+                counter.add(2)
+    det = 1
+    for i in range(n):
+        det *= A[i, i]
+        counter.add(1)
+    return det, counter.ops
 
-# vart tiden sparas
-gauss_times = []
-inverse_times = []
-cramer_times = []
 
-# start time counter
-start_total_time = time.time()
+# Cramer's rule
+def cramer_ops(A, b):
+    n = len(b)
+    total_ops = 0
+    _, ops = det_ops(A)
+    total_ops += ops
+    for i in range(n):
+        A_i = A.copy()
+        A_i[:, i] = b
+        _, ops = det_ops(A_i)
+        total_ops += ops
+    return total_ops
+
+
+# Run experiment
+system_sizes = range(2, 14)
+gauss_steps, inverse_steps, cramer_steps = [], [], []
 
 for n in system_sizes:
-    # göra random system Ax = b
-    A = np.random.rand(n, n) * 10
-    b = np.random.rand(n) * 10
+    A = np.random.rand(n, n)
+    b = np.random.rand(n)
+    _, ops = gauss_elimination_ops(A.copy(), b.copy())
+    gauss_steps.append(ops)
+    _, ops = inverse_ops(A.copy())
+    inverse_steps.append(ops)
+    cramer_steps.append(cramer_ops(A.copy(), b.copy()))
 
-    # Gauss-elimination
-    start = time.time()
-    x1 = np.linalg.solve(A, b)
-    end = time.time()
-    gauss_times.append(end - start)
+# Plot setup
+fig, ax = plt.subplots(figsize=(8,6))
+plt.subplots_adjust(bottom=0.2)
 
-    # Inversmetoden (A^-1 * b)
-    start = time.time()
-    A_inv = np.linalg.inv(A)
-    x2 = A_inv.dot(b)
-    end = time.time()
-    inverse_times.append(end - start)
+line1, = ax.plot(system_sizes, gauss_steps, marker="o", label="Gauss elimination")
+line2, = ax.plot(system_sizes, inverse_steps, marker="s", label="Inverse method")
+line3, = ax.plot(system_sizes, cramer_steps, marker="^", label="Cramer's rule")
 
-    # Cramer's rule (OBS: mycket långsam för stora n)
-    start = time.time()
-    if n <= 10:  # Cramer's rule blir extremt långsam annars
-        cramer_rule(A, b)
-    else:
-        cramer_times.append(np.nan)
-        continue
-    end = time.time()
-    cramer_times.append(end - start)
+ax.set_xlabel("Number of equations (n)")
+ax.set_ylabel("Counted arithmetic operations")
+ax.set_title("Measured operation count comparison")
+ax.legend()
+ax.grid(True)
 
-# end time counter
-end_total_time = time.time()
 
-# find difference from start to end
-dif_total_time = int(end_total_time - start_total_time)
+# Button callback
+class ScaleToggle:
+    def __init__(self, axis):
+        self.axis = axis
+        self.is_log = True
+        self.update_label()
 
-# convert time
-print(convert_to_time(dif_total_time))
+    def toggle(self, event):
+        self.is_log = not self.is_log
+        if self.is_log:
+            self.axis.set_yscale("log")
+        else:
+            self.axis.set_yscale("linear")
+        self.update_label()
+        plt.draw()
 
-# skapa grafen
-plt.figure(figsize=(8, 6))
-plt.plot(system_sizes, gauss_times, marker="o", label="Gauss-elimination (solve)")
-plt.plot(system_sizes, inverse_times, marker="s", label="Inversmetoden (A^-1 * b)")
-plt.plot(system_sizes[:len(cramer_times)], cramer_times, marker="^", label="Cramer's rule", linestyle="--")
+    def update_label(self):
+        button.label.set_text("Scale: " + ("Log" if self.is_log else "Linear"))
 
-plt.xlabel("Antal ekvationer / obekanta (n)")
-plt.ylabel("Tid (sekunder)")
-plt.title("Jämförelse av metoder för att lösa Ax = b")
-plt.legend()
-plt.grid(True)
+
+ax_button = plt.axes([0.4, 0.05, 0.2, 0.075])
+button = Button(ax_button, "Scale: Log")
+toggle = ScaleToggle(ax)
+button.on_clicked(toggle.toggle)
+
 plt.show()
