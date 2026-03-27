@@ -121,6 +121,7 @@ ax.set_title("Measured operation count comparison")
 ax.legend()
 ax.grid(True)
 
+
 # Button callback
 class ScaleToggle:
     def __init__(self, axis):
