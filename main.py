@@ -54,7 +54,6 @@ def inverse_ops(A):
         for k in range(n):
             if k != i:
                 factor = A[k, i]
-                counter.add(1)
                 for j in range(n):
                     A[k, j] -= factor * A[i, j]
                     I[k, j] -= factor * I[i, j]
