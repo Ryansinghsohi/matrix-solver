@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import numpy.linalg
 from matplotlib.widgets import Button
 
 
@@ -100,6 +101,9 @@ gauss_steps, inverse_steps, cramer_steps = [], [], []
 
 for n in system_sizes:
     A = np.random.rand(n, n)
+    while numpy.linalg.matrix_rank(A) < n:
+        A = np.random.rand(n, n)
+
     b = np.random.rand(n)
     _, ops = gauss_elimination_ops(A.copy(), b.copy())
     gauss_steps.append(ops)
