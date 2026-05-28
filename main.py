@@ -61,7 +61,7 @@ def inverse_ops(A):
     return I, counter.ops
 
 
-# Determinant
+# Determinants
 def det_ops(A):
     n = A.shape[0]
     counter = OpCounter()
