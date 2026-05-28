@@ -95,7 +95,7 @@ def cramer_ops(A, b):
 
 
 # Run experiment
-system_sizes = range(2, 14)
+system_sizes = range(2, 100)
 gauss_steps, inverse_steps, cramer_steps = [], [], []
 
 for n in system_sizes:
