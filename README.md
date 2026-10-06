@@ -1,49 +1,43 @@
-# Matrix Solver Comparison
-This project was created as part of a high school project (gymnasiearbete). The purpose is to compare different methods for solving systems of linear equations and to analyze how many arithmetic operations each method requires.
+# Matrislösare jämförelse
 
-## Project description
-The program generates random invertible matrices and solves the corresponding linear systems using three different methods:
+Detta projekt är skapat som ett gymnasiearbete. Syftet med projektet är att jämföra olika metoder för att lösa linjära ekvationssystem och analysera hur många aritmetiska operationer varje metod kräver.
 
-- Gaussian elimination
-- Matrix inverse method
-- Cramer's rule
+## Projektbeskrivning
 
-The script counts the number of arithmetic operations used by each method and visualizes the results in a graph. There is also a button in the plot that lets the user switch between logarithmic and linear scale.
+Programmet genererar slumpmässiga inverterbara matriser och löser motsvarande ekvationssystem med tre olika metoder:
 
-## Why this project is interesting
-This project demonstrates how different algorithms can solve the same problem but with very different computational costs. It is useful for understanding:
+- Gausselimination
+- Inversmatris-metoden
+- Cramers regel
 
-- algorithm efficiency
-- numerical methods
-- complexity of solving linear systems
-- how mathematics and programming are connected
+Skriptet räknar antalet aritmetiska operationer för varje metod och visualiserar resultaten i en graf. Det finns även en knapp i diagrammet som gör att användaren kan växla mellan logaritmisk och linjär skala.
 
-## Features
-- Generates random matrices of different sizes
-- Checks that each matrix is invertible
-- Counts arithmetic operations for each solving method
-- Plots the comparison in a graph
-- Allows toggling between log and linear scale
+## Varför är detta projekt intressant?
 
-## Technologies used
+Detta projekt visar hur olika algoritmer kan lösa samma problem men med väldigt olika beräkningskostnader. Det är användbart för att förstå:
+
+- algoritmisk effektivitet
+- numeriska metoder
+- komplexitet i lösning av linjära ekvationssystem
+- hur matematik och programmering hänger ihop
+
+## Funktioner
+
+- Genererar slumpmässiga matriser med olika storlekar
+- Kontrollerar att varje matris är inverterbar
+- Räknar antalet operationer för varje lösningsmetod
+- Plotter jämförelsen i ett diagram
+- Gör det möjligt att växla mellan logaritmisk och linjär skala
+
+## Teknologier som används
+
 - Python
 - NumPy
 - Matplotlib
 
 ## Installation
-Make sure Python is installed, then run:
+
+Se till att Python är installerat och kör sedan:
 
 ```bash
 pip install numpy matplotlib
-```
-
-## How to run
-```bash
-python main.py
-```
-
-This will display a graph comparing the operation counts for the three methods.
-
-## Author
-
-Ryan Singh
